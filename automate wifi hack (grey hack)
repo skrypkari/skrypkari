@@ -1,0 +1,42 @@
+crypto = include_lib("/lib/crypto.so")
+interface = "wlan0"
+
+crypto.airmon("start",interface)
+computer = get_shell.host_computer
+networks = computer.wifi_networks(interface)
+n=0
+b = []
+e = []
+for network in networks 
+	split = network.split(" ")
+	n= n+1
+	bssid = split[0]
+	pwr = split[1]
+	essid = split[2]
+	print(format_columns("\n " + n + ". " + "-b " + bssid + " -e " + essid + "<b> PWR=" + pwr))
+	b.push(bssid)
+   e.push(essid)
+end for
+
+netp = "Select the network you want to target, from 1 to 6 : "
+
+selectedwifi = user_input(netp)
+
+bid = b[selectedwifi.to_int - 1]
+eid = e[selectedwifi.to_int - 1]
+
+print(bid + "\n" + eid)
+
+clear_screen
+
+crypto.aireplay(bid , eid , 7000)
+capfilepath = home_dir + "/file.cap"
+print("<b>ALL IS READY...")
+
+wifiacces = crypto.aircrack(capfilepath)
+print("<b> THE PASSWORD OF THE WIFI IS : " + wifiacces)
+connect_wifi(interface , bid, eid, wifiacces)
+
+
+
+
